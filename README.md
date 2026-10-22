@@ -154,17 +154,17 @@ MIT
 
 **还差两步，各要点一下**：
 
-1. **建 GitHub 仓库**（本机没有 `gh`，凭据管理器里也没有 GitHub token ⇒ 只能人工点）
-   已在浏览器打开 `https://github.com/new`（如已关，请手动打开）：建一个空仓库，
-   名字 `mcd-dine`，Public，**不要**勾 README / .gitignore / LICENSE。然后：
+1. ~~建 GitHub 仓库~~ ✅ **已建好**：https://github.com/langlangagowith/mcd-dine （Public，当前为空）
 
-   ```bash
-   cd /d/mcd-dine
-   git remote add origin https://github.com/langlangagowith/mcd-dine.git
-   git push -u origin master
-   ```
+2. **把代码推上去** —— 仓库与 SSH 通道都已就位，**只差把公钥贴进 GitHub 一次**。
+   完整三步（含公钥、命令、备用方案）见 **`docs/next-day-push.md`**：
 
-2. **提交比赛作品**（10-25 16:00 前，赛道选「用餐」）
+   - 打开 <https://github.com/settings/ssh/new> 粘贴公钥（`docs/next-day-push.md` 里有现成一行）
+   - 然后 `cd /d/mcd-dine && git push -u origin main`
+   - 卡住时的判据与 HTTPS+ PAT 备用方案也在同一页
+
+3. **提交比赛作品**（10-25 16:00 前，赛道选「用餐」）
    → `https://1024.waytoagi.com/contest/submission`
+   （赛道前三评选**必须**勾 WorkBuddy 为使用工具）
 
 **待办**：10-24 10:30 之后去 `https://1024.waytoagi.com/me/benefits` 领 TokLens 兑换码（当天兑，3 天有效）。
