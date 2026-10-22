@@ -145,3 +145,26 @@ workbuddy.md           用 WorkBuddy 做这个东西的过程记录
 ## License
 
 MIT
+
+---
+
+## 交付状态（2026-10-22 23:05）
+
+**已完成**：内核 / 前后端 / 离线快照 / 真实调用证据 / README / workbuddy.md / 路演稿（本地仓库已提交）。
+
+**还差两步，各要点一下**：
+
+1. **建 GitHub 仓库**（本机没有 `gh`，凭据管理器里也没有 GitHub token ⇒ 只能人工点）
+   已在浏览器打开 `https://github.com/new`（如已关，请手动打开）：建一个空仓库，
+   名字 `mcd-dine`，Public，**不要**勾 README / .gitignore / LICENSE。然后：
+
+   ```bash
+   cd /d/mcd-dine
+   git remote add origin https://github.com/langlangagowith/mcd-dine.git
+   git push -u origin master
+   ```
+
+2. **提交比赛作品**（10-25 16:00 前，赛道选「用餐」）
+   → `https://1024.waytoagi.com/contest/submission`
+
+**待办**：10-24 10:30 之后去 `https://1024.waytoagi.com/me/benefits` 领 TokLens 兑换码（当天兑，3 天有效）。
