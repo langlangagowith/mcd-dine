@@ -1,0 +1,9 @@
+# 统一换行符：Windows 检出时不要把 LF 变成 CRLF（本机全局 autocrlf=true，靠这里兜住）
+* text=auto eol=lf
+*.md text eol=lf
+*.json text eol=lf
+*.py   text eol=lf
+*.html text eol=lf
+*.js   text eol=lf
+*.png  binary
+*.jpg  binary

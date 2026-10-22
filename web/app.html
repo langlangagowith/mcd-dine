@@ -1,0 +1,898 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>麦门配餐 mcd-dine · 每一份推荐都有出处</title>
+<meta name="description" content="输入人数、人均预算、忌口，用麦当劳 MCP 的实时菜单与券，配出一桌带证据的套餐。">
+<style>
+:root{
+  --bg:#0d0b12; --bg2:#12101a; --card:#171422; --card2:#1d1930;
+  --line:rgba(255,255,255,.09); --line2:rgba(255,255,255,.16);
+  --fg:#f6f2e8; --dim:#9a93a8; --dim2:#6f6880;
+  --gold:#ffc72c; --hot:#ff3b30; --ok:#3ddc84; --cool:#7cc4ff;
+  --r:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:
+    radial-gradient(1100px 600px at 78% -10%, rgba(255,199,44,.10), transparent 60%),
+    radial-gradient(900px 520px at 8% 6%, rgba(255,59,48,.08), transparent 62%),
+    var(--bg);
+  color:var(--fg);
+  font:15px/1.6 "PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,-apple-system,"Segoe UI",sans-serif;
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+}
+a{color:var(--gold);text-decoration:none}
+.wrap{max-width:1180px;margin:0 auto;padding:0 22px}
+
+/* ---------- topbar ---------- */
+.topbar{position:sticky;top:0;z-index:30;backdrop-filter:blur(14px);
+  background:rgba(13,11,18,.78);border-bottom:1px solid var(--line)}
+.topbar .wrap{display:flex;align-items:center;gap:14px;height:58px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.02em}
+.logo{width:24px;height:24px;border-radius:7px;background:var(--gold);color:#1a1206;
+  display:grid;place-items:center;font-size:14px;font-weight:900}
+.brand small{font-weight:600;color:var(--dim);letter-spacing:.06em;font-size:11px}
+.spacer{flex:1}
+.mode{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--dim);
+  border:1px solid var(--line);border-radius:999px;padding:4px 10px}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--dim2)}
+.mode.live .dot{background:var(--ok);box-shadow:0 0 8px var(--ok)}
+.mode.off .dot{background:var(--gold)}
+
+/* ---------- hero / form ---------- */
+.hero{padding:44px 0 8px}
+h1{font-size:clamp(26px,3.4vw,40px);line-height:1.2;margin:0 0 10px;letter-spacing:-.02em}
+h1 em{font-style:normal;color:var(--gold)}
+.sub{color:var(--dim);max-width:720px;margin:0 0 26px;font-size:15px}
+.panel{background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--line);
+  border-radius:var(--r);padding:18px}
+.row{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end}
+.field{display:flex;flex-direction:column;gap:7px;min-width:0}
+.field>label{font-size:12px;color:var(--dim);letter-spacing:.04em}
+.seg{display:inline-flex;background:#0f0d16;border:1px solid var(--line);border-radius:10px;padding:3px}
+.seg button{appearance:none;border:0;background:transparent;color:var(--dim);font:inherit;font-size:13px;
+  padding:7px 14px;border-radius:8px;cursor:pointer;transition:.15s}
+.seg button[aria-pressed="true"]{background:var(--gold);color:#1a1206;font-weight:700}
+.stepper{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:10px;background:#0f0d16}
+.stepper button{width:34px;height:36px;border:0;background:transparent;color:var(--fg);font-size:18px;cursor:pointer}
+.stepper input{width:44px;height:36px;border:0;background:transparent;color:var(--fg);text-align:center;
+  font:600 15px/1 inherit;appearance:textfield}
+.stepper input::-webkit-outer-spin-button,.stepper input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+input[type=text],input[type=search]{
+  background:#0f0d16;border:1px solid var(--line);color:var(--fg);border-radius:10px;
+  padding:9px 12px;font:inherit;font-size:14px;min-width:180px;outline:none}
+input[type=text]:focus{border-color:var(--gold)}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{appearance:none;border:1px solid var(--line);background:#0f0d16;color:var(--dim);
+  font:inherit;font-size:12.5px;padding:6px 11px;border-radius:999px;cursor:pointer;transition:.15s}
+.chip[aria-pressed="true"]{border-color:var(--hot);color:#ffd9d6;background:rgba(255,59,48,.14)}
+.chip.gold[aria-pressed="true"]{border-color:var(--gold);color:#ffe9a8;background:rgba(255,199,44,.14)}
+.go{margin-left:auto;display:flex;gap:10px;align-items:center}
+.btn{appearance:none;border:0;border-radius:11px;padding:12px 22px;font:700 15px/1 inherit;cursor:pointer;
+  background:var(--gold);color:#1a1206;transition:.15s;white-space:nowrap}
+.btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(255,199,44,.22)}
+.btn:disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none}
+.btn.ghost{background:transparent;border:1px solid var(--line2);color:var(--fg);font-weight:600}
+.btn.sm{padding:8px 14px;font-size:13px;border-radius:9px}
+.hint{font-size:12px;color:var(--dim2)}
+
+/* ---------- status / steps ---------- */
+.status{display:none;margin:18px 0 0;border:1px solid var(--line);border-radius:var(--r);
+  background:var(--card);padding:14px 16px}
+.status.on{display:block}
+.status .steps{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:13px;color:var(--dim)}
+.status .step{display:flex;align-items:center;gap:7px}
+.status .step.done{color:var(--fg)}
+.status .step.done .dot{background:var(--ok)}
+.status .step.now .dot{background:var(--gold);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.6);opacity:.6}}
+.err{margin-top:14px;border:1px solid rgba(255,59,48,.4);background:rgba(255,59,48,.08);
+  border-radius:var(--r);padding:14px 16px;display:none}
+.err.on{display:block}
+.err b{color:#ffb4ae}
+
+/* ---------- metas ---------- */
+.metas{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 6px}
+.meta{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;
+  padding:8px 12px;background:rgba(255,255,255,.02);font-size:12.5px;color:var(--dim)}
+.meta b{color:var(--fg);font-weight:600}
+.badge{font-size:10.5px;letter-spacing:.04em;border-radius:6px;padding:2px 6px;
+  background:rgba(255,255,255,.07);color:var(--dim);white-space:nowrap}
+.badge.price{background:rgba(124,196,255,.14);color:#a9d7ff}
+.badge.coupon{background:rgba(61,220,132,.14);color:#8ff0b8}
+.badge.value{background:rgba(255,199,44,.16);color:#ffdf8a}
+.badge.avoid{background:rgba(255,59,48,.14);color:#ffb4ae}
+.badge.kcal{background:rgba(255,255,255,.07);color:#cfc9d8}
+.badge.est{background:rgba(255,199,44,.14);color:#ffdf8a}
+
+/* ---------- plans ---------- */
+.plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(352px,1fr));gap:16px;margin:16px 0 0}
+.plan{position:relative;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;
+  background:linear-gradient(180deg,var(--card),#131020);display:flex;flex-direction:column;
+  transition:.18s}
+.plan:hover{border-color:var(--line2);transform:translateY(-2px)}
+.plan.top{border-color:rgba(255,199,44,.5);box-shadow:0 0 0 1px rgba(255,199,44,.18),0 18px 50px rgba(0,0,0,.35)}
+.plan.top .ph{padding-right:16px}
+.ph{padding:16px 16px 12px;border-bottom:1px dashed var(--line)}
+.ptitle{font-size:13px;color:var(--dim);margin:0 0 8px;display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap;line-height:1.45}
+.ptitle .badge{margin-top:1px}
+.pnum{display:flex;align-items:baseline;gap:8px}
+.pnum strong{font-size:36px;line-height:1;font-weight:800;letter-spacing:-.02em;color:var(--gold)}
+.pnum span{font-size:12px;color:var(--dim)}
+.pbar{height:4px;border-radius:4px;background:rgba(255,255,255,.07);margin:12px 0 6px;overflow:hidden}
+.pbar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),#ff8a3d);border-radius:4px}
+.pbar.over i{background:linear-gradient(90deg,#ff8a3d,var(--hot))}
+.pmeta{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--dim)}
+.pmeta b{color:var(--fg);font-weight:600}
+.items{padding:10px 16px;display:flex;flex-direction:column;gap:2px;flex:1}
+.item{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.045)}
+.item:last-child{border-bottom:0}
+.thumb{width:40px;height:40px;flex:0 0 40px;border-radius:9px;background:#211c2e;object-fit:cover}
+.thumb.ph2{display:grid;place-items:center;color:#8a7fa8;font-size:15px;font-weight:700}
+.iname{flex:1;min-width:0;font-size:13.5px;line-height:1.35}
+.iname .nm{margin-right:5px}
+.iname .qty{font-weight:700;color:var(--gold);margin-right:6px}
+.iname i{font-style:normal;color:var(--dim2);font-size:11.5px;margin-left:8px;white-space:nowrap}
+.itag{display:inline-block;font-size:10px;padding:1px 5px;border-radius:4px;margin-left:6px;
+  background:rgba(61,220,132,.15);color:#8ff0b8;vertical-align:1px}
+.iprice{font-variant-numeric:tabular-nums;font-size:13px;color:var(--dim);white-space:nowrap;text-align:right}
+.iprice s{color:var(--dim2);font-size:11px;margin-right:7px}
+.iprice b{color:var(--fg);font-weight:600}
+.reasons{padding:12px 16px 14px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:7px}
+.reason{display:flex;gap:8px;font-size:12.5px;color:#cfc9d8;line-height:1.5}
+.reason .badge{flex:0 0 auto;flex-shrink:0;min-width:max-content;align-self:flex-start}
+.pfoot{padding:12px 16px 16px;display:flex;gap:10px;align-items:center;border-top:1px solid var(--line)}
+.pfoot .btn{flex:1;justify-content:center}
+.save{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:#8ff0b8}
+
+/* ---------- evidence ---------- */
+.sec{margin:34px 0 0}
+.sec h2{font-size:16px;margin:0 0 12px;letter-spacing:.01em;display:flex;align-items:center;gap:8px}
+.sec h2 small{font-weight:400;color:var(--dim2);font-size:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.box{border:1px solid var(--line);border-radius:var(--r);background:var(--card);padding:14px 16px}
+.coupon{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px dashed var(--line);font-size:13px}
+.coupon:last-child{border-bottom:0}
+.coupon .ct{flex:1;min-width:0}
+.coupon .ct b{font-weight:600}
+.coupon .ct small{display:block;color:var(--dim2);font-size:11.5px;margin-top:2px;word-break:break-all}
+table.trace{width:100%;border-collapse:collapse;font-size:12px}
+table.trace th{text-align:left;color:var(--dim2);font-weight:500;padding:6px 4px;border-bottom:1px solid var(--line)}
+table.trace td{padding:6px 4px;border-bottom:1px solid rgba(255,255,255,.04);color:var(--dim);
+  font-variant-numeric:tabular-nums}
+table.trace td:first-child{color:var(--fg)}
+table.trace code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:var(--dim2)}
+footer{margin:44px 0 40px;color:var(--dim2);font-size:12px;line-height:1.8}
+footer b{color:var(--dim)}
+
+/* ---------- modal / toast ---------- */
+.mask{position:fixed;inset:0;background:rgba(6,4,10,.72);backdrop-filter:blur(4px);display:none;
+  place-items:center;z-index:60;padding:20px}
+.mask.on{display:grid}
+.modal{width:min(520px,100%);background:var(--card);border:1px solid var(--line2);border-radius:16px;padding:22px}
+.modal h3{margin:0 0 6px;font-size:18px}
+.modal p{color:var(--dim);font-size:13.5px;margin:0 0 16px}
+.modal .kv{display:flex;justify-content:space-between;font-size:13.5px;padding:7px 0;border-bottom:1px dashed var(--line)}
+.modal .kv b{font-weight:600}
+.modal .acts{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
+.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);opacity:0;pointer-events:none;
+  background:#221c33;border:1px solid var(--line2);color:var(--fg);padding:10px 16px;border-radius:10px;
+  font-size:13px;transition:.22s;z-index:80;max-width:80vw}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.spin{width:14px;height:14px;border:2px solid rgba(255,255,255,.2);border-top-color:var(--gold);
+  border-radius:50%;animation:spin .8s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media (max-width:860px){
+  .grid2{grid-template-columns:1fr}
+  .hero{padding-top:26px}
+  .go{margin-left:0;width:100%}
+  .go .btn{width:100%}
+  .plans{grid-template-columns:1fr}
+  .topbar .wrap{height:52px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <div class="brand"><span class="logo">M</span>麦门配餐 <small>mcd-dine</small></div>
+    <div class="spacer"></div>
+    <span class="mode" id="mode"><span class="dot"></span><span id="modeText">检测中…</span></span>
+  </div>
+</div>
+
+<main class="wrap">
+  <section class="hero">
+    <h1>预算说多少，就配到<em>多少</em></h1>
+    <p class="sub">输入人数、人均预算、忌口 —— 组合在本地枚举，价格由麦当劳 <b>calculate-price</b> 逐个核，
+      券来自门店实时券池。每一条推荐都写清依据，经得起追问。</p>
+
+    <form class="panel" id="form" autocomplete="off">
+      <div class="row">
+        <div class="field">
+          <label>场景</label>
+          <div class="seg" id="scene">
+            <button type="button" data-v="pickup" aria-pressed="true">到店自取</button>
+            <button type="button" data-v="delivery" aria-pressed="false">麦乐送</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>人数</label>
+          <div class="stepper">
+            <button type="button" id="pMinus" aria-label="减少">−</button>
+            <input id="people" type="number" value="3" min="1" max="8" inputmode="numeric">
+            <button type="button" id="pPlus" aria-label="增加">+</button>
+          </div>
+        </div>
+        <div class="field" style="flex:1;min-width:220px">
+          <label>人均预算 <b id="budgetText" style="color:var(--fg)">40 元</b></label>
+          <input id="budget" type="range" min="15" max="120" step="5" value="40" style="accent-color:#ffc72c">
+        </div>
+        <div class="field" style="flex:1;min-width:200px">
+          <label>位置（到店用）</label>
+          <input id="keyword" type="text" value="湖滨银泰" placeholder="地铁站 / 商圈 / 路名" list="storeList">
+          <datalist id="storeList"></datalist>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:14px">
+        <div class="field" style="flex:1;min-width:100%">
+          <label>忌口（可多选）</label>
+          <div class="chips" id="avoid">
+            <button type="button" class="chip" data-v="beef">不吃牛肉</button>
+            <button type="button" class="chip" data-v="chicken">不吃鸡肉</button>
+            <button type="button" class="chip" data-v="pork">不吃猪肉</button>
+            <button type="button" class="chip" data-v="fish">不吃鱼虾</button>
+            <button type="button" class="chip" data-v="spicy">不吃辣</button>
+            <button type="button" class="chip" data-v="egg">不吃蛋</button>
+            <button type="button" class="chip" data-v="dairy">不吃乳制品</button>
+            <button type="button" class="chip" data-v="caffeine">不要咖啡因</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:14px">
+        <div class="field">
+          <label>偏好（可选）</label>
+          <div class="chips" id="want">
+            <button type="button" class="chip gold" data-v="new">想吃新品</button>
+            <button type="button" class="chip gold" data-v="lowcal">低卡一点</button>
+          </div>
+        </div>
+        <div class="go">
+          <span class="hint" id="formHint"></span>
+          <button class="btn" id="submit" type="submit">配这一桌</button>
+        </div>
+      </div>
+    </form>
+
+    <div class="status" id="status">
+      <div class="steps" id="steps"></div>
+    </div>
+    <div class="err" id="err"><b>没配上</b><div id="errText" style="margin-top:6px;color:#ffd9d6"></div><div class="hint" id="errHint" style="margin-top:6px"></div></div>
+  </section>
+
+  <div class="metas" id="metas"></div>
+  <section class="plans" id="plans"></section>
+
+  <section class="sec" id="evidenceSec" style="display:none">
+    <h2>证据链 <small>每条推荐背后的真实调用，traceId 可在麦当劳侧追溯</small></h2>
+    <div class="grid2">
+      <div class="box">
+        <h2 style="font-size:14px;margin:0 0 8px">门店券池 <small id="couponCount"></small></h2>
+        <div id="couponList"></div>
+      </div>
+      <div class="box">
+        <h2 style="font-size:14px;margin:0 0 8px">调用记录 <small id="traceCount"></small></h2>
+        <div id="traceList"></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <b>数据来源</b>：麦当劳中国 MCP（mcp.mcd.cn）—— <code>query-nearby-stores</code> /
+    <code>query-meals</code> / <code>query-store-coupons</code> / <code>calculate-price</code> /
+    <code>query-meal-detail</code> / <code>list-nutrition-foods</code>。<br>
+    <b>不做的事</b>：不自动付款、不代点、不猜价格。建单后由你在麦当劳 App 完成支付。
+    离线模式用的是 <span id="snapTime">快照</span> 抓到的真实菜单，价格按菜单现价合计（未核价），会标「估算」。
+  </footer>
+</main>
+
+<div class="mask" id="mask">
+  <div class="modal" id="modal"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script id="snapshot" type="application/json">__SNAPSHOT__</script>
+<script>
+/* =========================================================================
+   mcd-dine 前端：live 模式吃后端 /api/recommend 的结果；
+   离线（双击打开 / 服务没起）时用内嵌快照在浏览器里跑同一套枚举逻辑。
+   ========================================================================= */
+const SNAP = JSON.parse(document.getElementById('snapshot').textContent || 'null');
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const yuan = n => (Math.round(n * 100) / 100).toFixed(2).replace(/\.00$/, '');
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- 忌口 & 角色（与 Python 侧同一套词表） ---------- */
+const AVOID_LEXICON = {
+  beef:['牛','安格斯','巨无霸','吉士','双层堡'],
+  chicken:['鸡','板烧','麦乐','脆皮','鸡腿','鸡翅'],
+  pork:['猪','火腿','培根','扒'],
+  fish:['鱼','鳕','虾'],
+  spicy:['辣','椒','藤','川式','咖喱'],
+  egg:['蛋'],
+  dairy:['芝士','奶','冰淇淋','圣代','甜筒','麦旋风','新地'],
+  caffeine:['咖啡','美式','拿铁','奶铁','麦咖啡'],
+};
+const AVOID_LABEL = {beef:'不吃牛肉',chicken:'不吃鸡肉',pork:'不吃猪肉',fish:'不吃鱼虾',
+  spicy:'不吃辣',egg:'不吃蛋',dairy:'不吃乳制品',caffeine:'不要咖啡因'};
+const avoidHits = (text, avoid) =>
+  avoid.filter(a => (AVOID_LEXICON[a] || []).some(k => text.includes(k)));
+
+/* ---------- 本地枚举（离线模式） ---------- */
+const CAP = 1.0;
+
+function enumeratePlans(menu, people, budget) {
+  const T = people * budget;
+  const usable = menu.filter(m => !m.skip && !m.wo && m.role !== 'skip');
+  const by = r => usable.filter(m => m.role === r);
+  const combos = by('combo').filter(m => m.price <= budget * 1.15).sort((a,b)=>a.price-b.price);
+  const mains  = by('main').filter(m => m.price >= .25*budget && m.price <= .95*budget).sort((a,b)=>a.price-b.price);
+  const sides  = usable.filter(m => (m.role==='side'||m.role==='dessert') && m.price >= .05*budget && m.price <= .65*budget).sort((a,b)=>a.price-b.price);
+  const drinks = by('drink').filter(m => m.price <= .45*budget).sort((a,b)=>a.price-b.price);
+  const out = [];
+  const push = (items, template) => {
+    const merged = new Map();
+    for (const it of items) {
+      const k = it.m.code;
+      if (merged.has(k)) merged.get(k).qty += it.qty;
+      else merged.set(k, {m: it.m, qty: it.qty});
+    }
+    const its = [...merged.values()];
+    const total = its.reduce((s,i)=>s+i.m.price*i.qty,0);
+    out.push({items: its, template, total: Math.round(total*100)/100,
+      core: its.filter(i=>['combo','main','side','dessert'].includes(i.m.role))
+               .map(i=>i.m.code+':'+i.qty).sort().join('|')});
+  };
+
+  // A. 每人一份套餐
+  for (let i=0;i<combos.length;i++){
+    const c = combos[i];
+    if (c.price*people > T*CAP) break;
+    push([{m:c,qty:people}], 'combo');
+    if (people>=2 && c.price*people < T*0.9){
+      for (const s of sides.slice(0,6)) if (c.price*people + s.price <= T*CAP)
+        push([{m:c,qty:people},{m:s,qty:1}], 'combo');
+    }
+    for (let j=i+1;j<combos.length;j++){
+      const c2 = combos[j];
+      if ((c.price+c2.price)*people > T*2.1) break;
+      for (let k=1;k<people;k++){
+        if (k*c.price + (people-k)*c2.price > T*CAP) continue;
+        push([{m:c,qty:k},{m:c2,qty:people-k}], 'combo');
+      }
+    }
+  }
+
+  // B. 单点拼桌
+  const sideOpts = [[]];
+  sides.forEach((s,i)=>{
+    sideOpts.push([{m:s,qty:1}]);
+    if (people>=3) sideOpts.push([{m:s,qty:2}]);
+    for (const t of sides.slice(i+1)) sideOpts.push([{m:s,qty:1},{m:t,qty:1}]);
+  });
+  const drinkOpts = [[]];
+  drinks.forEach((d,i)=>{
+    drinkOpts.push([{m:d,qty:people}]);
+    for (const d2 of drinks.slice(i+1))
+      for (let k=1;k<people;k++) drinkOpts.push([{m:d,qty:k},{m:d2,qty:people-k}]);
+  });
+  const extras = [];
+  for (const so of sideOpts) for (const dop of drinkOpts){
+    const items = so.concat(dop);
+    extras.push({price: items.reduce((s,i)=>s+i.m.price*i.qty,0), items});
+  }
+  extras.sort((a,b)=>a.price-b.price);
+  const prices = extras.map(e=>e.price);
+
+  const mainSets = [];
+  for (let i=0;i<mains.length;i++){
+    const a = mains[i];
+    mainSets.push([{m:a,qty:people}]);
+    for (let j=i+1;j<mains.length;j++){
+      const b = mains[j];
+      if (a.price+b.price > 2*budget) break;
+      for (let k=1;k<people;k++) mainSets.push([{m:a,qty:k},{m:b,qty:people-k}]);
+    }
+  }
+  for (const ms of mainSets){
+    const mt = ms.reduce((s,i)=>s+i.m.price*i.qty,0);
+    if (mt > T*CAP) continue;
+    const hi = upperBound(prices, T*CAP - mt);
+    const lo = lowerBound(prices, T*0.80 - mt);
+    let n = 0;
+    for (let idx = hi-1; idx >= lo && n < 6; idx--, n++)
+      push(ms.concat(extras[idx].items), 'alacarte');
+  }
+  return out;
+}
+function lowerBound(a,x){let l=0,h=a.length;while(l<h){const m=(l+h)>>1;if(a[m]<x)l=m+1;else h=m}return l}
+function upperBound(a,x){let l=0,h=a.length;while(l<h){const m=(l+h)>>1;if(a[m]<=x)l=m+1;else h=m}return l}
+
+function kpp(p, people){
+  let total=0, known=0, all=0;
+  for (const i of p.items){ all+=i.qty; if (i.m.kcal){ total+=i.m.kcal*i.qty; known+=i.qty; } }
+  return (all && known/all >= .75) ? total/people : 0;
+}
+function scorePlan(p, people, budget, want, couponCodes, priced){
+  const T = people*budget, total = p.total;
+  const use = total/T;
+  let s = 1.0;
+  s -= 2.6*Math.max(0, 1-use);
+  s -= 5.0*Math.max(0, use-1);
+  const hasCombo = p.items.some(i=>i.m.role==='combo');
+  const q = r => p.items.filter(i=>i.m.role===r).reduce((a,i)=>a+i.qty,0);
+  if (hasCombo) s += .06;
+  else {
+    if (q('drink') >= people) s += .04;
+    if (q('side') >= 1 || q('dessert') >= 1) s += .03;
+    if (people>=3 && (q('side')+q('dessert')) >= 2) s += .02;
+  }
+  s += .01*Math.min(new Set(p.items.filter(i=>['main','combo'].includes(i.m.role)).map(i=>i.m.code)).size, 3);
+  const codes = new Set(p.items.map(i=>i.m.code));
+  if (couponCodes && [...codes].some(c=>couponCodes.has(c))) s += .10;
+  if (priced && p.couponSaving>0) s += Math.min(.10, p.couponSaving/Math.max(total,1)*.8);
+  if (want==='new' && p.items.some(i=>(i.m.tags||[]).includes('上新'))) s += .08;
+  if (want==='lowcal'){ const k=kpp(p,people); if (k>0&&k<=750) s += .08; }
+  return Math.round(s*1e4)/1e4;
+}
+function diverse(plans, n){
+  const out=[], seen=new Set(), mainUses=new Map();
+  const mk = p => [...new Set(p.items.filter(i=>['combo','main'].includes(i.m.role))
+                          .map(i=>i.m.code))].sort().join('|');
+  const ck = p => [...new Set(p.items.filter(i=>['combo','main','side','dessert'].includes(i.m.role))
+                          .map(i=>i.m.code))].sort().join('|');
+  const take = p => {
+    const k = mk(p);
+    if (seen.has(ck(p)) || (mainUses.get(k)||0) >= 1) return false;
+    out.push(p); seen.add(ck(p)); mainUses.set(k,(mainUses.get(k)||0)+1); return true;
+  };
+  for (const tpl of ['combo','alacarte'])
+    for (const p of plans) if (p.template===tpl && take(p)) break;
+  for (const p of plans){ if (out.length>=n) break; take(p); }
+  return out.slice(0,n);
+}
+
+/* 离线用券：从券名里读固定价（"11.9元麦辣鸡腿堡" → 11.9），只算单份 */
+function offlineCoupon(plan, coupons){
+  const codes = new Map(plan.items.map(i=>[i.m.code, i.qty]));
+  let best = null;
+  for (const c of coupons || []){
+    const m = /([0-9]+(?:\.[0-9]+)?)\s*元/.exec(c.title || '');
+    if (!m) continue;
+    const fixed = parseFloat(m[1]);
+    for (const p of c.products || []){
+      const qty = codes.get(p.productCode);
+      if (!qty) continue;
+      const item = plan.items.find(i=>i.m.code===p.productCode);
+      const save = Math.max(0, item.m.price - fixed);
+      if (save > 0 && (!best || save > best.save))
+        best = {save, title: c.title, code: p.productCode, productName: p.productName || item.m.name};
+    }
+  }
+  return best;
+}
+
+function recommendOffline(req){
+  const menu = (SNAP.menu || []).slice();
+  const avoid = req.avoid || [];
+  const excluded = [];
+  const kept = [];
+  for (const m of menu){
+    if (m.skip) continue;
+    const hits = avoidHits(m.name + ' ' + (m.tags||[]).join(' '), avoid);
+    if (hits.length) { excluded.push({name:m.name, by:hits, src:'名称/标签'}); continue; }
+    kept.push(m);
+  }
+  const couponCodes = new Set();
+  for (const c of SNAP.coupons || []) for (const p of c.products || []) couponCodes.add(String(p.productCode));
+
+  let plans = enumeratePlans(kept, req.people, req.budget);
+  plans.forEach(p => p.score = scorePlan(p, req.people, req.budget, req.want, couponCodes, false));
+  plans.sort((a,b)=>b.score-a.score);
+  const picked = diverse(plans, 6);
+
+  const T = req.people * req.budget;
+  for (const p of picked){
+    const c = offlineCoupon(p, SNAP.coupons);
+    let total = p.total;
+    if (c){ total = Math.round((p.total - c.save)*100)/100; p.couponSaving = c.save;
+      p.usedCoupons = [c]; p.total = total; }
+    p.score = scorePlan(p, req.people, req.budget, req.want, couponCodes, true);
+  }
+  picked.sort((a,b)=>b.score-a.score);
+
+  const plansJson = picked.map((p,idx) => {
+    const reasons = [];
+    for (const i of p.items.filter(i=>['combo','main'].includes(i.m.role)))
+      reasons.push({kind:'pick', badge:'菜单现价', text:`${i.m.name} ×${i.qty}，${yuan(i.m.price)} 元/份`});
+    const diff = T - p.total;
+    reasons.push({kind:'budget', badge:'本地合计', text:
+      `${req.people} 人 × ${req.budget} 元 = ${yuan(T)} 元预算；合计 ${yuan(p.total)} 元，用掉 ${(p.total/T*100).toFixed(1)}%，${diff>=0?'余':'超'} ${yuan(Math.abs(diff))} 元`});
+    if (p.couponSaving>0) reasons.push({kind:'coupon', badge:'券后估算', text:
+      `${p.usedCoupons[0].title} 挂到「${p.usedCoupons[0].productName}」：省 ${yuan(p.couponSaving)} 元（离线按券名固定价估算，未核价）`});
+    else reasons.push({kind:'coupon', badge:'券池', text:`这桌没有券可用；快照券池 ${(SNAP.coupons||[]).length} 张`});
+    if (excluded.length) reasons.push({kind:'avoid', badge:'过滤记录', text:`已按忌口排除 ${excluded.length} 个候选，本方案 0 冲突`});
+    const k = kpp(p, req.people);
+    if (k) reasons.push({kind:'kcal', badge:'营养表', text:`人均约 ${Math.round(k)} kcal（快照营养表匹配）`});
+    return {
+      title: planTitle(p, req.people), template: p.template,
+      items: p.items.map(i=>({code:i.m.code, name:i.m.name, qty:i.qty, unitPrice:i.m.price,
+        subtotal:+(i.m.price*i.qty).toFixed(2), role:i.m.role, image:i.m.img, kcal:i.m.kcal,
+        note: i.m.code===p.usedCoupons?.[0]?.code ? '券：'+p.usedCoupons[0].title : '',
+        coupon: i.m.code===p.usedCoupons?.[0]?.code,
+        couponSubtotal: i.m.code===p.usedCoupons?.[0]?.code
+          ? +(i.m.price*i.qty - p.usedCoupons[0].save).toFixed(2) : null})),
+      total: p.total, perPerson: +(p.total/req.people).toFixed(2), budgetTotal: T,
+      useRatio: +(p.total/T).toFixed(4), couponBefore: p.couponSaving? p.total+p.couponSaving : null,
+      couponSaving: p.couponSaving || 0, promoSaving: 0,
+      kcalPerPerson: k ? Math.round(k) : null, score: p.score, reasons,
+      takeWay: [{code:'eat-in',title:'堂食'},{code:'take-in-store',title:'外带'}],
+      traceIds: [], hasCoupon: p.couponSaving>0,
+    };
+  });
+  return {
+    ok:true, offline:true,
+    request: req,
+    store: SNAP.store,
+    summary: {menuItems: kept.length, excluded: excluded.length, candidates: plans.length,
+      priced: 0, couponPool: (SNAP.coupons||[]).length, calls: 0, elapsedMs: 0,
+      snapshotAt: SNAP.generatedAt},
+    plans: plansJson, excluded: excluded.slice(0,8),
+    coupons: {store: SNAP.coupons || [], claimable: SNAP.claimable || []},
+    trace: [],
+  };
+}
+function planTitle(p, people){
+  const names = [...new Set(p.items.filter(i=>['combo','main'].includes(i.m.role)).map(i=>i.m.name))];
+  let s = names.join('、'); if (s.length>26) s = s.slice(0,25)+'…';
+  return `${people} 人 · ${p.template==='combo'?'套餐制':'单点拼桌'} · ${s}`;
+}
+
+/* ---------- 状态 ---------- */
+const state = {scene:'pickup', avoid:new Set(), want:new Set(), data:null, offline:false, busy:false};
+
+function setMode(live, text){
+  const el = $('#mode');
+  el.classList.toggle('live', live); el.classList.toggle('off', !live);
+  $('#modeText').textContent = text;
+}
+async function probe(){
+  try{
+    const r = await fetch('/api/health', {cache:'no-store'});
+    const j = await r.json();
+    if (j.ok) { setMode(true, '实时 · MCP 已连接'); state.offline=false; return; }
+    setMode(false, '离线快照');
+  }catch(e){ setMode(false, '离线快照'); }
+  state.offline = true;
+  if (SNAP) $('#snapTime').textContent = SNAP.generatedAt;
+  $('#formHint').textContent = SNAP ? '当前为离线演示：用内嵌真实快照本地计算' : '没有后端也没有快照';
+}
+
+const STEPS = [
+  ['门店', '找店'],
+  ['菜单', '拉实时菜单'],
+  ['枚举', '本地枚举组合'],
+  ['核价', 'calculate-price'],
+  ['券', '门店券池'],
+];
+function showSteps(i){
+  $('#status').classList.add('on');
+  $('#steps').innerHTML = STEPS.map(([k,label],idx)=>`
+    <span class="step ${idx<i?'done':idx===i?'now':''}"><span class="dot"></span>${label}</span>`).join('');
+}
+function hideSteps(){ $('#status').classList.remove('on'); }
+
+function toast(msg, ms=2600){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('on');
+  clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove('on'), ms);
+}
+
+/* ---------- 渲染 ---------- */
+const ROLE_WORD = {combo:'套餐', main:'主食', side:'小食', drink:'饮料', dessert:'甜品'};
+
+function render(data){
+  state.data = data;
+  window.__dineData = data;
+  const req = data.request || {};
+  const s = data.summary || {};
+  const store = data.store || {};
+
+  $('#metas').innerHTML = [
+    `<span class="meta">门店 <b>${esc(store.storeName || store.storeCode)}</b>
+       ${store.businessStartTime?`<span class="badge">${store.businessStartTime}-${store.businessEndTime}</span>`:''}</span>`,
+    `<span class="meta">菜单 <b>${s.menuItems}</b> 项 ${data.offline?'<span class="badge est">快照</span>':''}</span>`,
+    `<span class="meta">候选 <b>${s.candidates}</b> → 核价 <b>${s.priced}</b></span>`,
+    `<span class="meta">券池 <b>${s.couponPool}</b> 张</span>`,
+    `<span class="meta">忌口排除 <b>${s.excluded}</b></span>`,
+    `<span class="meta">${data.offline?'快照时间':'总耗时'} <b>${data.offline?esc(s.snapshotAt||''):s.elapsedMs+'ms'}</b></span>`,
+    `<span class="meta">MCP 调用 <b>${s.calls}</b> 次</span>`,
+  ].join('');
+
+  const saves = (data.plans||[]).map(p=>p.couponSaving||0);
+  const bestSave = Math.max(0, ...saves);
+  state.bestSaveIdx = bestSave > 0 ? saves.indexOf(bestSave) : -1;
+  $('#plans').innerHTML = (data.plans||[]).map((p,i)=>planCard(p,i,data)).join('');
+  renderEvidence(data);
+  bindOrderButtons(data);
+}
+
+function planCard(p, i, data){
+  const usePct = Math.min(120, p.useRatio*100);
+  const over = p.useRatio > 1.0001;
+  const save = p.couponSaving || 0;
+  const items = p.items.map(it=>{
+    const lineTotal = (it.couponSubtotal ?? it.subtotal);
+    const tag = it.coupon ? `<span class="itag">已用券</span>` : '';
+    const kcal = it.kcal ? `<i>${Math.round(it.kcal)} kcal</i>` : '';
+    return `<div class="item">
+      ${it.image?`<img class="thumb" src="${esc(it.image)}" alt="" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'thumb ph2',textContent:'${esc((it.name||'麦').slice(0,1))}'}))">`:`<span class="thumb ph2">${esc((it.name||'麦').slice(0,1))}</span>`}
+      <div class="iname"><span class="nm">${esc(it.name)}</span>${it.qty>1?`<span class="qty">×${it.qty}</span>`:''}${tag}${kcal}
+        <div class="hint">${ROLE_WORD[it.role]||''}${it.note?` · ${esc(it.note)}`:''}</div>
+      </div>
+      <div class="iprice">${it.qty>1?`<s>${yuan(it.unitPrice)}×${it.qty}</s>`:''}<b>${yuan(lineTotal)}</b></div>
+    </div>`;
+  }).join('');
+
+  const reasons = (p.reasons||[]).slice(0,7).map(r=>
+    `<div class="reason"><span class="badge ${r.kind}">${esc(r.badge||'')}</span><span>${esc(r.text)}</span></div>`
+  ).join('');
+
+  const takeWay = (p.takeWay||[]).find(t=>t.code==='take-in-store') || (p.takeWay||[])[0];
+
+  return `<article class="plan ${i===0?'top':''}" data-i="${i}">
+    <div class="ph">
+      <p class="ptitle">${i===0?'<span class="badge value">最合预算</span>':''}${(save>0&&i===state.bestSaveIdx&&i!==0)?'<span class="badge coupon">券省最多</span>':''}${esc(p.title)}</p>
+      <div class="pnum"><strong>${yuan(p.total)}</strong><span>元 · 人均 ${yuan(p.perPerson)}</span></div>
+      <div class="pbar ${over?'over':''}"><i style="width:${usePct}%"></i></div>
+      <div class="pmeta">
+        <span>用掉预算 <b>${(p.useRatio*100).toFixed(1)}%</b></span>
+        ${save>0?`<span class="save">券省 <b>${yuan(save)}</b></span>`:''}
+        ${(save>0&&p.couponBefore)?`<span>券前 <b>${yuan(p.couponBefore)}</b></span>`:''}
+        ${p.kcalPerPerson?`<span>人均 <b>${p.kcalPerPerson}</b> kcal</span>`:''}
+      </div>
+    </div>
+    <div class="items">${items}</div>
+    <div class="reasons">${reasons}</div>
+    <div class="pfoot">
+      <button class="btn sm" data-order="${i}" ${data.offline?'disabled title="离线模式不能建单"':''}>
+        ${data.offline?'离线不可建单':'按这套建单'}
+      </button>
+      <span class="hint" data-tw="${i}">${takeWay?esc(takeWay.title):''}</span>
+    </div>
+  </article>`;
+}
+
+function renderEvidence(data){
+  const cps = (data.coupons && data.coupons.store) || [];
+  const claim = (data.coupons && data.coupons.claimable) || [];
+  const canClaim = claim.filter(c=>c.status === 'CAN_GET');
+  $('#evidenceSec').style.display = 'block';
+  $('#couponCount').textContent = `${cps.length} 张`;
+  $('#couponList').innerHTML = cps.length ? cps.map(c=>`
+    <div class="coupon">
+      <span class="badge coupon">券</span>
+      <div class="ct"><b>${esc(c.title)}</b>
+        <small>券 ID ${esc(String(c.couponId||'').slice(-10))} · 适用 ${esc((c.products||[]).map(x=>typeof x==='string'?x:(x.productName||'')).join('、'))}</small>
+      </div>
+    </div>`).join('') : '<div class="hint">这家店当前没有可用券（已实时查询）</div>';
+
+  // 麦麦省还有可领的券 → 给一个按钮（用户自己点，不自动领）
+  if (canClaim.length && !data.offline){
+    $('#couponList').insertAdjacentHTML('beforeend', `
+      <div style="margin-top:12px;padding-top:12px;border-top:1px dashed var(--line)">
+        <div class="hint" style="margin-bottom:8px">麦麦省还有 ${canClaim.length} 张可领：
+          ${canClaim.map(c=>esc(c.title)).join('、')}</div>
+        <button class="btn sm" id="claimBtn">一键领券后重算</button>
+      </div>`);
+    $('#claimBtn').onclick = async () => {
+      const b = $('#claimBtn'); b.disabled = true; b.textContent = '领取中…';
+      try{
+        const r = await fetch('/api/claim', {method:'POST'});
+        const j = await r.json();
+        if (!j.ok) throw new Error(j.message || '领取失败');
+        const n = (j.data && j.data.successCoupons || []).length;
+        toast(n ? `领到 ${n} 张券，正在重新配…` : '没有新券可领');
+        await run();
+      }catch(e){
+        b.disabled = false; b.textContent = '一键领券后重算';
+        toast('领券失败：' + e.message, 4000);
+      }
+    };
+  }
+
+  const tr = data.trace || [];
+  $('#traceCount').textContent = tr.length ? `${tr.length} 条` : '离线模式无调用';
+  $('#traceList').innerHTML = tr.length ? `
+    <table class="trace"><thead><tr><th>工具</th><th>耗时</th><th>traceId</th></tr></thead><tbody>
+    ${tr.slice(-9).map(t=>`<tr><td>${esc(t.tool)}</td><td>${t.ms}ms</td>
+      <td><code>${esc(String(t.traceId||'').slice(0,10))}…</code></td></tr>`).join('')}
+    </tbody></table>` : '<div class="hint">双击打开时没有后端，改用内嵌快照在本地计算。</div>';
+}
+
+function bindOrderButtons(data){
+  $$('[data-order]').forEach(btn=>{
+    btn.addEventListener('click', ()=>openOrder(data, +btn.dataset.order));
+  });
+}
+
+/* ---------- 建单 ---------- */
+function openOrder(data, idx){
+  const p = data.plans[idx];
+  const store = data.store;
+  const ways = p.takeWay || [];
+  const way = ways.find(w=>w.code==='take-in-store') || ways[0];
+  $('#modal').innerHTML = `
+    <h3>确认建单</h3>
+    <p>会真实创建一笔未支付订单，支付仍需你在麦当劳 App 完成。价格在提交前会再核一次。</p>
+    <div class="kv"><span>门店</span><b>${esc(store.storeName||store.storeCode)}</b></div>
+    <div class="kv"><span>方案</span><b>${esc(p.title)}</b></div>
+    <div class="kv"><span>商品</span><b>${p.items.map(i=>`${esc(i.name)}×${i.qty}`).join('、')}</b></div>
+    <div class="kv"><span>取餐方式</span><b>${esc(way?way.title:'外带')}</b></div>
+    <div class="kv"><span>应付</span><b style="color:var(--gold)">${yuan(p.total)} 元</b></div>
+    <div class="acts">
+      <button class="btn ghost" id="mCancel">再想想</button>
+      <button class="btn" id="mOk">建单</button>
+    </div>`;
+  $('#mask').classList.add('on');
+  $('#mCancel').onclick = ()=>$('#mask').classList.remove('on');
+  $('#mOk').onclick = async ()=>{
+    const btn = $('#mOk'); btn.disabled = true; btn.textContent = '建单中…';
+    try{
+      const body = {
+        storeCode: store.storeCode, scene: data.request.scene || 'pickup',
+        takeWayCode: way ? way.code : 'take-in-store',
+        expectTotal: p.total,
+        items: p.items.map(i=>({code:i.code, qty:i.qty,
+          couponId: i.coupon ? (p.items.find(x=>x.code===i.code)||{}).couponId : undefined,
+          couponCode: i.coupon ? (p.items.find(x=>x.code===i.code)||{}).couponCode : undefined})),
+      };
+      const r = await fetch('/api/order', {method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(body)});
+      const j = await r.json();
+      if (!j.ok) throw new Error(j.error || '建单失败');
+      const o = j.order || {};
+      $('#modal').innerHTML = `
+        <h3>已建单</h3>
+        <p>订单已创建，请到麦当劳 App 里完成支付（本工具不碰付款）。</p>
+        <div class="kv"><span>订单号</span><b>${esc(o.orderId || o.orderNo || '—')}</b></div>
+        <div class="kv"><span>核价复核</span><b>${yuan(j.revalidated||p.total)} 元</b></div>
+        <div class="acts"><button class="btn" id="mClose">知道了</button></div>`;
+      $('#mClose').onclick = ()=>$('#mask').classList.remove('on');
+    }catch(e){
+      btn.disabled = false; btn.textContent = '建单';
+      toast('建单失败：' + e.message, 4000);
+    }
+  };
+}
+
+/* ---------- 提交 ---------- */
+async function run(){
+  if (state.busy) return;
+  state.busy = true;
+  $('#err').classList.remove('on');
+  $('#submit').disabled = true;
+  $('#submit').textContent = '配餐中…';
+  showSteps(0);
+  const req = {
+    people: Math.max(1, Math.min(8, +$('#people').value || 1)),
+    budget: +$('#budget').value,
+    avoid: [...state.avoid],
+    want: [...state.want][0] || '',
+    scene: state.scene,
+    city: '杭州市',
+    keyword: $('#keyword').value.trim(),
+  };
+  let stepTimer = null, step = 0;
+  stepTimer = setInterval(()=>{ step = Math.min(STEPS.length-1, step+1); showSteps(step); }, 900);
+  try{
+    let data;
+    if (state.offline){
+      if (!SNAP) throw new Error('没有后端也没找到内嵌快照');
+      await new Promise(r=>setTimeout(r, 420));
+      data = recommendOffline(req);
+    } else {
+      const r = await fetch('/api/recommend', {method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(req)});
+      data = await r.json();
+    }
+    if (!data.ok) throw Object.assign(new Error(data.error || '配餐失败'), {hint:data.hint});
+    clearInterval(stepTimer); showSteps(STEPS.length);
+    render(data);
+    setTimeout(hideSteps, 350);
+  }catch(e){
+    clearInterval(stepTimer); hideSteps();
+    $('#err').classList.add('on');
+    $('#errText').textContent = e.message;
+    $('#errHint').textContent = e.hint || '';
+  }finally{
+    clearInterval(stepTimer);
+    state.busy = false;
+    $('#submit').disabled = false;
+    $('#submit').textContent = '配这一桌';
+  }
+}
+
+/* ---------- 交互绑定 ---------- */
+function initUI(){
+  // 场景
+  $$('#scene button').forEach(b=>b.addEventListener('click', ()=>{
+    state.scene = b.dataset.v;
+    $$('#scene button').forEach(x=>x.setAttribute('aria-pressed', String(x===b)));
+    $('#keyword').closest('.field').style.opacity = state.scene==='delivery' ? .45 : 1;
+    $('#keyword').disabled = state.scene==='delivery';
+  }));
+  // 人数
+  $('#pMinus').onclick = ()=>{ const i=$('#people'); i.value = Math.max(1, +i.value-1); };
+  $('#pPlus').onclick  = ()=>{ const i=$('#people'); i.value = Math.min(8, +i.value+1); };
+  // 预算
+  const syncBudget = ()=>{ $('#budgetText').textContent = $('#budget').value + ' 元'; };
+  $('#budget').addEventListener('input', syncBudget); syncBudget();
+  // chips
+  $$('#avoid .chip').forEach(c=>c.addEventListener('click', ()=>{
+    const v = c.dataset.v;
+    if (state.avoid.has(v)) state.avoid.delete(v); else state.avoid.add(v);
+    c.setAttribute('aria-pressed', String(state.avoid.has(v)));
+  }));
+  $$('#want .chip').forEach(c=>c.addEventListener('click', ()=>{
+    const v = c.dataset.v;
+    if (state.want.has(v)) state.want.delete(v);
+    else { state.want.clear(); state.want.add(v); }
+    $$('#want .chip').forEach(x=>x.setAttribute('aria-pressed', String(state.want.has(x.dataset.v))));
+  }));
+  // 提交
+  $('#form').addEventListener('submit', e=>{ e.preventDefault(); run(); });
+
+  // 门店联想（live 才有）
+  let t = null;
+  $('#keyword').addEventListener('input', ()=>{
+    clearTimeout(t);
+    t = setTimeout(async ()=>{
+      const kw = $('#keyword').value.trim();
+      if (!kw || state.offline) return;
+      try{
+        const r = await fetch('/api/stores?keyword=' + encodeURIComponent(kw));
+        const j = await r.json();
+        if (j.ok) $('#storeList').innerHTML = j.stores.map(s=>
+          `<option value="${esc(s.storeName)}">${s.businessStatus?'营业中':'休息'} ${s.businessStartTime}-${s.businessEndTime}</option>`).join('');
+      }catch(e){}
+    }, 450);
+  });
+}
+
+/* ---------- 启动 ---------- */
+(async function boot(){
+  initUI();
+  await probe();
+  if (SNAP) {
+    $('#metas').innerHTML = `<span class="meta">快照门店 <b>${esc(SNAP.store.storeName||'')}</b>
+      <span class="badge">${esc(SNAP.store.businessStartTime||'')}-${esc(SNAP.store.businessEndTime||'')}</span></span>
+      <span class="meta">快照时间 <b>${esc(SNAP.generatedAt)}</b></span>
+      <span class="meta">菜单 <b>${(SNAP.menu||[]).length}</b> 项</span>
+      <span class="meta">券池 <b>${(SNAP.coupons||[]).length}</b> 张</span>
+      <span class="meta">已按默认参数自动配了一桌 ↓</span>`;
+  }
+  setTimeout(run, 260);
+})();
+</script>
+</body>
+</html>
