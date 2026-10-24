@@ -4,7 +4,9 @@
 >
 > 不套游戏外壳。目标是「今天中午真能用」。
 
-![overview](docs/img/overview.png)
+![overview](docs/demo/shot_top.png)
+
+**演示**：[25 秒真实操作录屏](docs/demo/mcd-dine-demo.mp4) · [使用说明](docs/usage.md) · [封面](docs/demo/cover.png)
 
 ---
 
@@ -138,6 +140,8 @@ scripts/build_web.py   app.html + data/offline.json → index.html
 scripts/fetch_snapshot.py  抓离线快照
 scripts/rehearse.py    录真实调用证据
 docs/evidence/         真实调用记录（md + json）
+docs/usage.md          使用说明（提交比赛用）
+docs/demo/             演示录屏 / 截图 / 封面
 docs/pitch.md          3 分钟路演稿
 workbuddy.md           用 WorkBuddy 做这个东西的过程记录
 ```
@@ -148,23 +152,9 @@ MIT
 
 ---
 
-## 交付状态（2026-10-22 23:05）
+## 交付状态（2026-10-25）
 
-**已完成**：内核 / 前后端 / 离线快照 / 真实调用证据 / README / workbuddy.md / 路演稿（本地仓库已提交）。
-
-**还差两步，各要点一下**：
-
-1. ~~建 GitHub 仓库~~ ✅ **已建好**：https://github.com/langlangagowith/mcd-dine （Public，当前为空）
-
-2. **把代码推上去** —— 仓库与 SSH 通道都已就位，**只差把公钥贴进 GitHub 一次**。
-   完整三步（含公钥、命令、备用方案）见 **`docs/next-day-push.md`**：
-
-   - 打开 <https://github.com/settings/ssh/new> 粘贴公钥（`docs/next-day-push.md` 里有现成一行）
-   - 然后 `cd /d/mcd-dine && git push -u origin main`
-   - 卡住时的判据与 HTTPS+ PAT 备用方案也在同一页
-
-3. **提交比赛作品**（10-25 16:00 前，赛道选「用餐」）
-   → `https://1024.waytoagi.com/contest/submission`
-   （赛道前三评选**必须**勾 WorkBuddy 为使用工具）
-
-**待办**：10-24 10:30 之后去 `https://1024.waytoagi.com/me/benefits` 领 TokLens 兑换码（当天兑，3 天有效）。
+- ✅ 内核 / 前后端 / 离线快照 / 真实调用证据 / README / workbuddy.md / 路演稿
+- ✅ **已开源**：<https://github.com/langlangagowith/mcd-dine>（`main` = `b5aa6ca`，根目录含 `workbuddy.md`）
+- ✅ 提交物料：`docs/demo/mcd-dine-demo.mp4`（25 秒真机录屏）· `docs/demo/cover.png`（封面）· `docs/usage.md`（使用说明）
+- ⬜ 比赛提交（1024 超能 Coding · 用餐赛道，10-25 16:00 截止）：赛道选「用餐」＋使用工具勾 **WorkBuddy**
