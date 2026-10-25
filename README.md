@@ -6,7 +6,7 @@
 
 ![overview](docs/demo/shot_top.png)
 
-**演示**：[25 秒真实操作录屏](docs/demo/mcd-dine-demo.mp4) · [使用说明](docs/usage.md) · [封面](docs/demo/cover.png)
+**演示**：[52 秒真实操作录屏](docs/demo/mcd-dine-demo.mp4) · [使用说明](docs/usage.md) · [封面 4:3](docs/demo/cover-4x3.png)
 
 ---
 
@@ -144,6 +144,7 @@ docs/usage.md          使用说明（提交比赛用）
 docs/demo/             演示录屏 / 截图 / 封面
 docs/pitch.md          3 分钟路演稿
 workbuddy.md           用 WorkBuddy 做这个东西的过程记录
+MCP_INTEGRATION.md     实际使用的麦当劳 MCP 工具、调用时序与业务价值
 ```
 
 ## License
@@ -155,6 +156,6 @@ MIT
 ## 交付状态（2026-10-25）
 
 - ✅ 内核 / 前后端 / 离线快照 / 真实调用证据 / README / workbuddy.md / 路演稿
-- ✅ **已开源**：<https://github.com/langlangagowith/mcd-dine>（`main` = `b5aa6ca`，根目录含 `workbuddy.md`）
-- ✅ 提交物料：`docs/demo/mcd-dine-demo.mp4`（25 秒真机录屏）· `docs/demo/cover.png`（封面）· `docs/usage.md`（使用说明）
-- ⬜ 比赛提交（1024 超能 Coding · 用餐赛道，10-25 16:00 截止）：赛道选「用餐」＋使用工具勾 **WorkBuddy**
+- ✅ **已开源**：<https://github.com/langlangagowith/mcd-dine>（`main`，根目录含 `workbuddy.md` / `MCP_INTEGRATION.md`）
+- ✅ 提交物料：`docs/demo/mcd-dine-demo.mp4`（52 秒真机录屏）· `docs/demo/cover-4x3.png`（4:3 封面）· `docs/usage.md`（使用说明）
+- ✅ **比赛已提交**（1024 超能 Coding · 用餐赛道）：10-25 10:40 第 1 版提交，赛道「用餐」＋使用工具 **WorkBuddy**，**已通过审核**；16:05 前可修改后重新提交

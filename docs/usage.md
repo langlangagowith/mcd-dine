@@ -2,7 +2,7 @@
 
 > 一句话：**输入人数、人均预算、忌口，给你配一桌真的点得到的麦当劳 —— 每一份推荐都有出处，券后价算清。**
 >
-> 演示视频（25 秒，真实操作录屏）：[`docs/demo/mcd-dine-demo.mp4`](demo/mcd-dine-demo.mp4)
+> 演示视频（52 秒，真实操作录屏）：[`docs/demo/mcd-dine-demo.mp4`](demo/mcd-dine-demo.mp4)
 
 ---
 
